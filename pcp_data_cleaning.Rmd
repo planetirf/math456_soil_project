@@ -1,0 +1,20 @@
+---
+title: "pcp_data_cleaning"
+author: "Irfan Ainuddin"
+date: "3/2/2020"
+output: html_document
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df <- read.csv("./pcp_soil_data/PCP-AllYEARS.csv")
+```
+
+```{r}
+## remove all columns with all NA"s
+df2 <- df[, colSums(is.na(df)) != nrow(df)]
+```
+
+
