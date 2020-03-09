@@ -9,7 +9,7 @@ library(tidyverse)
 ```
 
 ```{r}
-df <- read.csv("./pcp_soil_data/PCP-AllYEARS.csv")
+df <- read.csv("../data/pcp_soil_data/PCP-AllYEARS.csv")
 ```
 
 ```{r}
