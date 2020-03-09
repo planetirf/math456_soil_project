@@ -4,6 +4,8 @@ Date_Received       Date Received	                        Date soil samples were
 Sample_ID	          Sample ID	                            Sample ID
 Field_ID            Field ID	                            Field ID
 Depth_1	Depth       Sampling Depth                        Interval
+Depth_Low           Sampling Depth Low                    Starting value of Depth Interval
+Depth_High          Sampling Depth High                   Ending value of the Depth Interval
 Soil_pH	Active      Soil pH	                              Measured soil pH
 Buffer_pH	          Soil Buffer pH	                      Total acidity, which buffers the active pH to maintain a consistent pH
 Excess_Lime	        Calcium Carbonate                     Calcium Carbonate used to manage soil pH
