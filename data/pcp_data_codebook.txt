@@ -1,0 +1,56 @@
+Codebook for pacific coast producers soil data		
+Variable	          Name  	                              Description
+Date_Received       Date Received	                        Date soil samples were received
+Sample_ID	          Sample ID	                            Sample ID
+Field_ID            Field ID	                            Field ID
+Depth_1	Depth       Sampling Depth                        Interval
+Soil_pH	Active      Soil pH	                              Measured soil pH
+Buffer_pH	          Soil Buffer pH	                      Total acidity, which buffers the active pH to maintain a consistent pH
+Excess_Lime	        Calcium Carbonate                     Calcium Carbonate used to manage soil pH
+                    Equivalent?	      
+Soluble_Salts	      Total Soluble Salts	                  Total Soluble Salts, CA, Mg, K, Na
+OM_pct	            Organic Matter %	                    Organic Matter Percent
+NO3_D1_ppm	        Nitrate concentration	                Nitrate concentration (parts per million)
+NO3_D1_lbs_A	      Nitrate per acre	                    Nitrate per acre
+NO3_Total_lbs_A	    Total Nitrate/Acre	                  Total Nitrate per Acre
+NO3_Total_Depth	    Total nitrate for 
+                    each sampling depth	                  Total nitrate for each sampling depth
+Bicarb_P_ppm	      Phosphorus concetration	              Phosphorus concetration (parts per million)
+SO4_ppm	            Sulfate concentration	                Sulfate concentration (parts per million)
+ExchK_ppm	          Exchangable Potassium concentration	  Exchangable Potassium concentration (parts per million)
+ExchCa_ppm	        Exchangable Calcium concentration	    Exchangable Calcium concentration (parts per million)
+ExchMg_ppm	        Exchangable Magneium concentration	  Exchangable Magneium concentration (parts per million)
+ExchNa_ppm	        Exchangable sodium concentration	    Exchangable sodium concentration (parts per million)
+Zn_ppm	            Zinc concentration	                  Zinc concentration (parts per million)
+Fe_ppm	            Iron concentration	                  Iron concentration (parts per million)
+Mn_ppm	            Manganese concentration	              Manganese concentration (parts per million)
+Cu_ppm	            Copper concentration	                Copper concentration (parts per million)
+Boron_ppm	          Boron concentration	                  Boron concentration (parts per million)
+CEC_me_100g	        Cation Exchange Capacity 	            millequivalets of charge in 100g of soil
+Base_Sat_pct	      Base saturation percent	              concentration of Ca, Mg, K, Na/total CEC
+H_Sat_pct	          Hydrogen percent saturated	          hydrogen/total base saturation
+Ca_Sat_pct	        Calcium percent saturated 	          calcium/total base saturation
+Mg_Sat_pct	        Magnesium percent saturated	          mg/total base saturation
+K_Sat_pct	          Potassium percent saturated	          potassium/total base saturation
+Na_Sat_pct	        Sodium Percent saturated	            sodium/total base saturation
+SOL_Ca_me_L	        unknown	unknown
+SOL_Mg_me_L	        unknown	unknown
+SOL_Na_me_L	        unknown	unknown
+SAR	                sodium absorption ratio	              primary response variable: a ratio representing sodium: calcium and magnesium 
+ESP	                exchangable sodium percentage	        primary response variable: sodic soil ESP > 15%, percentage of sodium in the soil/CEC
+Gypsum_T_A	        Calcium Sulfate	Amdemdment            Amendment to leech out sodium from the system, increasing soil stability
+NH4_D1_ppm	        Ammonium concentration	              ppm
+NH4_D1_lbs_A	      Ammonium per acre	                    lbs of ammonium per acre
+Total_Nitrogen_pct  Total nitrogren percent	NO3 + NH4 total nitrogen
+xCrop_Name	        crop data	maybe                       insufficient data
+xCrop_Yield_Unit	  crop data	maybe                       insufficient data
+xRec_N_lbs_A	      crop data	maybe                       insufficient data
+xRec_P2O5_lbs_A	    crop data	maybe                       insufficient data
+xRec_K2O_lbs_A	    crop data	maybe                       insufficient data
+xRec_S_lbs_A	      crop data	maybe                       insufficient data
+xRec_Zn_lbs_A	      crop data	maybe                       insufficient data
+xRec_MgO_lbs_A	    crop data	maybe                       insufficient data
+xRec_Fe_lbs_A	      crop data	maybe                       insufficient data
+xRec_Mn_lbs_A	      crop data	maybe                       insufficient data
+xRec_Cu_lbs_A	      crop data	maybe                       insufficient data
+xRec_B_lbs_A	      crop data	maybe                       insufficient data
