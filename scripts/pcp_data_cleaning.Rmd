@@ -9,19 +9,17 @@ library(tidyverse)
 ```
 
 ```{r}
-df <- read.csv("../data/pcp_soil_data/PCP-AllYEARS.csv")
-```
+df <- read.csv("../data/pcp_soil_data/PCP-R-ready.csv")
 
-```{r}
-## remove all columns with all NA"s
 df2 <- df[, colSums(is.na(df)) != nrow(df)]
 ```
 
 ```{r}
-df3 <- df2 %>% select("Date_Received", "Sample_ID", "Field_ID", "Depth_1", "Soil_pH", "Buffer_pH", "Excess_Lime", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "NO3_D1_lbs_A", "NO3_Total_lbs_A", "NO3_Total_Depth", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g", "Base_Sat_pct", "H_Sat_pct", "Ca_Sat_pct", "Mg_Sat_pct", "K_Sat_pct", "Na_Sat_pct", "SOL_Ca_me_L", "SOL_Mg_me_L", "SOL_Na_me_L", "SAR", "ESP", "Gypsum_T_A", "NH4_D1_ppm", "NH4_D1_lbs_A", "Total_Nitrogen_pct", "xCrop_Name", "xCrop_Yield_Unit", "xRec_N_lbs_A", "xRec_P2O5_lbs_A", "xRec_K2O_lbs_A", "xRec_S_lbs_A", "xRec_Zn_lbs_A", "xRec_MgO_lbs_A", "xRec_Fe_lbs_A", "xRec_Mn_lbs_A", "xRec_Cu_lbs_A", "xRec_B_lbs_A")
+df3 <- df2 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Soil_pH", "Buffer_pH", "Excess_Lime", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "NO3_D1_lbs_A", "NO3_Total_lbs_A", "NO3_Total_Depth", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g", "Base_Sat_pct", "H_Sat_pct", "Ca_Sat_pct", "Mg_Sat_pct", "K_Sat_pct", "Na_Sat_pct", "SOL_Ca_me_L", "SOL_Mg_me_L", "SAR", "ESP", "Gypsum_T_A", "NH4_D1_ppm", "NH4_D1_lbs_A", "Total_Nitrogen_pct", "xCrop_Name", "xCrop_Yield_Unit", "xRec_N_lbs_A", "xRec_P2O5_lbs_A", "xRec_K2O_lbs_A", "xRec_S_lbs_A", "xRec_Zn_lbs_A", "xRec_MgO_lbs_A", "xRec_Fe_lbs_A", "xRec_Mn_lbs_A", "xRec_Cu_lbs_A", "xRec_B_lbs_A")
+
 ```
 
-```{r}
+```{r Seperate_Depths}
 low <- c()
 high <- c()
 for(i in 1:length(df3$Depth_1)){
@@ -31,4 +29,3 @@ for(i in 1:length(df3$Depth_1)){
 df3$Depth_low <- low
 df3$Depth_high <- high
 ```
-
