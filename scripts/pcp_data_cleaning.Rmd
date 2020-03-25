@@ -43,8 +43,11 @@ prop.miss
 ```
 
 ```{r}
-pmpv <- data.frame(variable = names(df3[0,10]), pct.miss=prop.miss)
+pmpv <- data.frame(variable = names(df3), pct.miss=prop.miss)
 
+```
+
+```{r}
 ggplot(pmpv, aes(x=variable, y=pct.miss)) +
   geom_bar(stat="identity") + 
   ylab("Percent") + 
