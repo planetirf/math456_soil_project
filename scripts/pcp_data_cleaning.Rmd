@@ -48,7 +48,7 @@ pmpv <- data.frame(variable = names(df3), pct.miss=prop.miss)
 ```
 
 ```{r}
-ggplot(pmpv, aes(x=variable, y=pct.miss)) +
+ggplot(pmpv, aes(x= reorder(variable, pct.miss), y=pct.miss)) +
   geom_bar(stat="identity") + 
   ylab("Percent") + 
   scale_y_continuous(labels=scales::percent, limits=c(0,1)) + 
