@@ -52,6 +52,7 @@ ggplot(pmpv, aes(x= reorder(variable, pct.miss), y=pct.miss, fill=pct.miss)) +
   geom_bar(stat="identity") + 
   ggtitle("Missing Data") +
   ylab("Percent") + 
+  xlab("Variables") +
   scale_y_continuous(labels=scales::percent, limits=c(0,1.03)) + 
   geom_text(data=pmpv, aes(label=paste0(round(pct.miss*100,1),"%"), y=pct.miss+.03), size=2) +
   coord_flip() +
