@@ -129,6 +129,18 @@ pairs.panels(df3[,20:24],
              )
 ```
 
+
+```{r}
+# Correation Matrix between micronutrients 
+
+pairs.panels(df3[,14:24],
+             method="pearson",
+             hist.col="#65cd32",
+             density=TRUE,
+             ellipses = TRUE
+             )
+```
+
 ```{r}
 pairs(df3[,16:19], pch=19)
 ```
