@@ -21,8 +21,19 @@ df3 <- df2 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Soil_pH", 
 
 ```
 
+```{r}
+
+```
+
 
 ```{r recode_vars}
+
+library(lubridate)
+
+## set Date_Sampled from factor to Date
+df3$Date_Sampled <- mdy(as.character(df3$Date_Sampled))
+
+df3 <- df3
 ## set empty xCrop_Name to factor level to NA  datatype
 
 ## convert xCrop_yield_Unit
@@ -94,14 +105,33 @@ aggr(df3, col=c('darkturquoise','darkorchid3'),
 
 ```{r}
 library(psych)
+```
+
+```{r}
+## Correlation matrix betwen Macronutrients
 
 pairs.panels(df3[,16:19],
              method="pearson",
-             hist.col="darkturqoise",
+             hist.col="#00ced1",
              density=TRUE,
              ellipses = TRUE
              )
+```
 
+```{r}
+# Correation Matrix between micronutrients 
+
+pairs.panels(df3[,20:24],
+             method="pearson",
+             hist.col="#9a32cd",
+             density=TRUE,
+             ellipses = TRUE
+             )
+```
+
+```{r}
 pairs(df3[,16:19], pch=19)
 ```
+
+
 
