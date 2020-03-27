@@ -114,7 +114,8 @@ pairs.panels(df3[,16:19],
              method="pearson",
              hist.col="#00ced1",
              density=TRUE,
-             ellipses = TRUE
+             ellipses = TRUE,
+             cex.labels = 1.2,
              )
 ```
 
@@ -125,7 +126,8 @@ pairs.panels(df3[,20:24],
              method="pearson",
              hist.col="#9a32cd",
              density=TRUE,
-             ellipses = TRUE
+             ellipses = TRUE,
+             cex.labels = 1.2,
              )
 ```
 
@@ -137,13 +139,34 @@ pairs.panels(df3[,14:24],
              method="pearson",
              hist.col="#65cd32",
              density=TRUE,
-             ellipses = TRUE
+             ellipses = TRUE,
+             cex.labels = 1.2,
              )
 ```
 
 ```{r}
 pairs(df3[,16:19], pch=19)
 ```
+
+
+```{r}
+ggplot(df3, aes(x=Date_Sampled)) + 
+  geom_point(aes(y=ExchNa_ppm), color="darkturquoise") +
+  geom_point(aes(y=ExchK_ppm), color="darkorchid3") +
+  geom_smooth(aes(y=ExchNa_ppm), color="darkturquoise") +
+  geom_smooth(aes(y=ExchK_ppm), color="darkorchid3") +
+  labs(x="Sampling Date",y="Parts per Million (ppm)",title="Exchangeable Macronutrients")
+```
+
+```{r}
+ggplot(df3, aes(x=Date_Sampled)) + 
+  geom_point(aes(y=Na_Sat_pct), color="darkturquoise") +
+  geom_point(aes(y=K_Sat_pct), color="darkorchid3") +
+  geom_smooth(aes(y=Na_Sat_pct), color="darkturquoise") +
+  geom_smooth(aes(y=K_Sat_pct), color="darkorchid3") +
+  labs(x="Sampling Date",y="Percent Saturation (%)",title="Exchangeable Macronutrients")
+```
+
 
 
 
