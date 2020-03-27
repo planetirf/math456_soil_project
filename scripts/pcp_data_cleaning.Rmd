@@ -21,6 +21,14 @@ df3 <- df2 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Soil_pH", 
 
 ```
 
+
+```{r recode_vars}
+## set empty xCrop_Name to factor level to NA  datatype
+
+## convert xCrop_yield_Unit
+
+```
+
 ```{r Seperate_Depths}
 low <- c()
 high <- c()
@@ -56,7 +64,8 @@ ggplot(pmpv, aes(x= reorder(variable, pct.miss), y=pct.miss, fill=pct.miss)) +
   scale_y_continuous(labels=scales::percent, limits=c(0,1.03)) + 
   geom_text(data=pmpv, aes(label=paste0(round(pct.miss*100,1),"%"), y=pct.miss+.03), size=2) +
   coord_flip() +
-  theme(axis.text.y = element_text(size=5))
+  theme(axis.text.y = element_text(size=5)) +
+  scale_fill_gradient(low="darkturquoise",high="darkorchid3")
   
 ```
 
@@ -78,7 +87,21 @@ library(VIM)
 ```{r}
 aggr(df3, col=c('darkturquoise','darkorchid3'),
               numbers=TRUE, sortVars=TRUE, prop=TRUE,border=TRUE, combined=TRUE,
-              labels=names(df3), cex.axis=.4,
+              labels=names(df3), cex.axis=.4, cex.numbers=.4, varheight=FALSE,
               gap=0, ylab=c("Missing data","Pattern"))
+```
+
+
+```{r}
+library(psych)
+
+pairs.panels(df3[,16:19],
+             method="pearson",
+             hist.col="darkturqoise",
+             density=TRUE,
+             ellipses = TRUE
+             )
+
+pairs(df3[,16:19], pch=19)
 ```
 
