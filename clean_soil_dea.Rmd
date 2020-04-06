@@ -1,0 +1,11 @@
+---
+title: "Clean Salty Soil Data"
+author: "Irfan Ainuddin"
+date: "4/6/2020"
+output: html_document
+---
+
+```{r}
+sd <- readRDS(file = "./data/clean_soil_data.rds")
+```
+
