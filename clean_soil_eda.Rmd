@@ -9,3 +9,11 @@ output: html_document
 sd <- readRDS(file = "./data/clean_soil_data.rds")
 ```
 
+
+
+
+
+
+
+
+
