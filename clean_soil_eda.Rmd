@@ -10,7 +10,33 @@ sd <- readRDS(file = "./data/clean_soil_data.rds")
 ```
 
 
+```{r}
+hist(sd$Year)
+```
+Most of the data was collected 2000-2005. 
 
+```{r}
+ggplot(sd, aes(x=sd$Year, y=sd$Mg_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')
+```
+Overall magnesium trend is decreasing at all depths.
+
+```{r}
+ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')
+```
+Overall decreasing NA through time. 0-12 decreasing, 13-24 increasing slightly, 25-48 increasing.
+
+
+Slightly higher Na Sat Pct in deeper layers. 
+
+```{r}
+ggplot(sd, aes(x=sd$Depth_1, y=sd$Na_Sat_pct, fill=sd$Depth_1)) + geom_boxplot()
+```
 
 
 
