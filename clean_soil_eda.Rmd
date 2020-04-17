@@ -45,10 +45,13 @@ ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) +
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
             geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') + 
-            facet_wrap(sd$Irr_season)
+            facet_wrap(sd$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) saturation percent (%)") +
+            title("Sodium over time by irrigation season")
 ```
 
-
+In all irrigation seasons the sodium saturation percent is decreasing for the 0-12" depth class. The samples collected 'Before' the irrigation are most similar to the overall changes shown. When we look at changes in sodium levels after irrigation and during the winter we see a decreasing trend for all of the soil depth classes, which is reflecting the soluble nature of sodium moving or leaching out with water in the natural environment. 
 
 
 Slightly higher Na Sat Pct in deeper layers. 
