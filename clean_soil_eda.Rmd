@@ -4,6 +4,9 @@ author: "Irfan Ainuddin"
 date: "4/6/2020"
 output: html_document
 ---
+```{r}
+library(tidyverse)
+```
 
 ```{r}
 sd <- readRDS(file = "./data/clean_soil_data.rds")
@@ -24,18 +27,34 @@ ggplot(sd, aes(x=sd$Year, y=sd$Mg_Sat_pct, col=as.factor(sd$Depth_1))) +
 Overall magnesium trend is decreasing at all depths.
 
 ```{r}
+#
 ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')
+            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') 
+## irf: geom_smooth y changed from Mg_sat_pct  > Na_sat_pct
 ```
-Overall decreasing NA through time. 0-12 decreasing, 13-24 increasing slightly, 25-48 increasing.
+Overall Sodium (Na) saturation percent stays roughly the same over time. Sodium decreases by roughly 5 percent in the 0-12" depth class from 17 % to 11%  over 15 years. Sodium increases very slightly in the 13-24" depth class by 1% from 17% to 18%. Sodium increases by 5% total in the 25-36" depth class from 17% to 23%. Sodium increases by 8% total in the 37-48" depth class from 17% to 24%.
+
+These trends suggest that sodium is leeching out of the top soil into the subsoil primarily in the two lower depth classes. 
+
+
+```{r}
+## lets facet_wrap() by irrigation season
+ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sd$Irr_season)
+```
+
+
 
 
 Slightly higher Na Sat Pct in deeper layers. 
 
 ```{r}
-ggplot(sd, aes(x=sd$Depth_1, y=sd$Na_Sat_pct, fill=sd$Depth_1)) + geom_boxplot()
+ggplot(sd, aes(x=sd$Depth_1, y=sd$Na_Sat_pct, fill=sd$Depth_1)) + geom_boxplot() 
 ```
 
 
