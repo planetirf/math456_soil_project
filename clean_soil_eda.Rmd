@@ -18,20 +18,39 @@ hist(sd$Year)
 ```
 Most of the data was collected 2000-2005. 
 
-```{r}
+## Calcium Saturation Percent (%)
+```{r magnesium over time}
+ggplot(sd, aes(x=sd$Year, y=sd$Ca_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$Ca_Sat_pct), col="blue", se=FALSE, method='lm')+
+            xlab("Sampling Date") +
+            ylab("Calcium (Ca) saturation percent (%)") +
+            ggtitle("Calcium saturation over time")
+```
+
+## Magnesium Saturation Percent (%)
+```{r magnesium over time}
 ggplot(sd, aes(x=sd$Year, y=sd$Mg_Sat_pct, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')
+            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')+
+            xlab("Sampling Date") +
+            ylab("Magnesium (Mg) saturation percent (%)") +
+            ggtitle("Magnesium saturation over time")
 ```
 Overall magnesium trend is decreasing at all depths.
 
-```{r}
+## Sodium Saturation Percent (%)
+```{r Sodium over time}
 #
 ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') 
+            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) saturation percent (%)") +
+            ggtitle("Sodium saturation over time")
 ## irf: geom_smooth y changed from Mg_sat_pct  > Na_sat_pct
 ```
 Overall Sodium (Na) saturation percent stays roughly the same over time. Sodium decreases by roughly 5 percent in the 0-12" depth class from 17 % to 11%  over 15 years. Sodium increases very slightly in the 13-24" depth class by 1% from 17% to 18%. Sodium increases by 5% total in the 25-36" depth class from 17% to 23%. Sodium increases by 8% total in the 37-48" depth class from 17% to 24%.
@@ -39,7 +58,7 @@ Overall Sodium (Na) saturation percent stays roughly the same over time. Sodium 
 These trends suggest that sodium is leeching out of the top soil into the subsoil primarily in the two lower depth classes. 
 
 
-```{r}
+```{r Sodium over time w/ irr facet}
 ## lets facet_wrap() by irrigation season
 ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
@@ -48,7 +67,7 @@ ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) +
             facet_wrap(sd$Irr_season) +
             xlab("Sampling Date") +
             ylab("Sodium (Na) saturation percent (%)") +
-            title("Sodium over time by irrigation season")
+            ggtitle("Sodium saturation over time by irrigation season")
 ```
 
 In all irrigation seasons the sodium saturation percent is decreasing for the 0-12" depth class. The samples collected 'Before' the irrigation are most similar to the overall changes shown. When we look at changes in sodium levels after irrigation and during the winter we see a decreasing trend for all of the soil depth classes, which is reflecting the soluble nature of sodium moving or leaching out with water in the natural environment. 
@@ -61,6 +80,87 @@ ggplot(sd, aes(x=sd$Depth_1, y=sd$Na_Sat_pct, fill=sd$Depth_1)) + geom_boxplot()
 ```
 
 
+## Exchangable Sodium (Na) Parts Per Million
+```{r Sodium PPM over time}
+
+ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) PPM") +
+            ggtitle("Sodium (Na) PPM over time")
+```
+
+
+```{r Sodium  PPM over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sd$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) PPM") +
+            ggtitle("Sodium (Na) PPM over time by irrigation season")
+
+```
+
+## Potassium Saturation Percent
+
+```{r Potassium over time }
+
+ggplot(sd, aes(x=sd$Year, y=sd$K_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            xlab("Sampling Date") +
+            ylab("Potassium (K) saturation percent (%)") +
+            ggtitle("Potassium (K) saturation over time")
+```
+
+Overall potassium seems to be increasing with a positive linear trend over time for all soil horizons (depth classes).
+
+
+
+```{r Potassium over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sd, aes(x=sd$Year, y=sd$K_Sat_pct, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sd$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Potassium (K) saturation percent (%)") +
+            ggtitle("Potassium (K) saturation over time by irrigation season")
+## not sure how to interpet all of this, i sort of think the winter sampling irragtion season doesnt make sense
+```
+
+## Exchangable Potassium (K) Parts Per Million
+```{r Potassium PPM over }
+
+ggplot(sd, aes(x=sd$Year, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchK_ppm), col="blue", se=FALSE, method='lm') + 
+            xlab("Sampling Date") +
+            ylab("Potassium (K) PPM") +
+            ggtitle("Potassium (K) PPM over time")
+```
+
+
+```{r Potassium  PPM over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sd, aes(x=sd$Year, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchK_ppm), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sd$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Potassium (K) PPM") +
+            ggtitle("Potassium (K) PPM over time by irrigation season")
+
+```
 
 
 
