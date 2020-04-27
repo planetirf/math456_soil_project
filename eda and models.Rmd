@@ -1,0 +1,96 @@
+---
+title: "Untitled"
+author: "Jessica Shippen"
+date: "4/26/2020"
+output: html_document
+---
+
+```{r}
+library("GPArotation")
+library("dplyr")
+library("ggplot2")
+library("psych")
+library("kableExtra")
+library("gplots")
+sd.data<- readRDS(file = "~/Desktop/clean_soil_data.rds")
+```
+
+```{r}
+str(sd.data)
+```
+
+Simple Linear Regression
+```{r}
+namodel <- lm(ExchNa_ppm ~ Year, data= sd.data)
+summary(namodel)
+confint(namodel)
+```
+For every year, Exchangable sodium concentrations (ppm) significantly increases by 18.059ppm (10.41, 25.71). 
+
+```{r}
+mgmodel <- lm(ExchMg_ppm ~ Year, data= sd.data)
+summary(mgmodel)
+confint(mgmodel)
+```
+For every year, Exchangable magnesium concentrations (ppm) significantly increases by 8.952ppm (4.97, 12.93). 
+```{r}
+plot(mgmodel$residuals ~ sd.data$ExchMg_ppm)
+lines(lowess(mgmodel$residuals ~ sd.data$ExchMg_ppm), col="red")
+```
+
+
+```{r}
+qqnorm(mgmodel$residuals)
+qqline(mgmodel$residuals, col="red")
+```
+Not normal residuals. 
+
+
+```{r}
+str(sd.data)
+```
+
+```{r}
+#Modeling Na Ppm
+mod_na <- sd.data %>% select(Date_Sampled, Year, Irr_season, Depth_1, Field_ID, Soil_pH, Buffer_pH, Excess_Lime, Soluble_Salts, OM_pct, NO3_D1_ppm, NO3_D1_lbs_A, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm)
+
+summary(mod_na)
+```
+
+```{r}
+#Variable selection using LASSO
+library(tidyverse)
+library(pander)
+library(bestglm)
+library(glmnet)
+library(ROCR)
+y <- mod_na$ExchNa_ppm
+x <- model.matrix(data= mod_na, ExchNa_ppm ~ .)[,-1]
+set.seed(123)
+cv.lasso.na <-cv.glmnet(x,y, alpha=1)
+glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
+
+```
+
+```{r}
+table(is.na(sd.data))
+```
+```{r}
+round(mean(is.na(sd.data))*100, 2)
+```
+3,010 (12.12%) pieces of the data are missing.
+
+```{r}
+library(mice)
+imp_sd <- mice(sd.data, m=30, maxit=30, seed=500, printFlag=FALSE)
+summary(imp_sd)
+```
+
+```{r}
+imp_sd$meth
+```
+```{r}
+plot(imp_sd)
+```
+
+
