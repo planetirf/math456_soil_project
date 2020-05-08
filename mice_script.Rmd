@@ -1,0 +1,42 @@
+---
+title: "mice_script"
+author: "Irfan Ainuddin"
+date: "5/8/2020"
+output: html_document
+---
+## MICE
+```{r}
+round(mean(is.na(sd))*100, 2)
+```
+Twelve percent of this data is missing. 
+
+```{r}
+imp_sd <- mice(sd, m=30, maxit=25, seed=500, printFlag=FALSE)
+summary(imp_sd)
+```
+
+```{r}
+imp_sd$meth
+```
+
+```{r}
+plot(imp_sd)
+```
+
+```{r}
+sd_imp <- complete(imp_sd, action=25)
+sd_imp_long <- complete(imp_sd, 'long')
+```
+
+```{r}
+names(sd_imp_long)
+```
+```{r}
+table(sd_imp_long$.imp)
+```
+30 Variables with a total of 828 observations. 
+
+```{r}
+saveRDS(sd_imp, file = "./data/imputed_data.rds")
+```
+

@@ -15,45 +15,17 @@ library(mice)
 ```
 
 ```{r}
-sd <- readRDS(file = "../data/clean_soil_data.rds")
+sd <- readRDS(file = "./data/clean_soil_data.rds")
+imp_sd <- readRDS(file = "./data/imputed_data.rds")
 ```
 
 
-## MICE
-```{r}
-round(mean(is.na(sd))*100, 2)
-```
-Twelve percent of this data is missing. 
-
-```{r}
-imp_sd <- mice(sd, m=30, maxit=25, seed=500, printFlag=FALSE)
-summary(imp_sd)
-```
-
-```{r}
-imp_sd$meth
-```
-
-```{r}
-plot(imp_sd)
-```
-
-```{r}
-sd_imp <- complete(imp_sd, action=25)
-sd_imp_long <- complete(imp_sd, 'long')
-```
-
-```{r}
-names(sd_imp_long)
-```
-```{r}
-table(sd_imp_long$.imp)
-```
-30 Variables with a total of 828 observations. 
 
 ```{r}
 densityplot(imp_sd)
 ```
+
+
 
 
 ## Variable Selection
@@ -76,6 +48,8 @@ subset_na <- regsubsets(ExchNa_ppm~., data=bglm.exch.na, nvmax=14)
 
 summary(subset_na)
 ```
+
+
 ```{r}
 plot(subset_na, scale="bic")
 ```
