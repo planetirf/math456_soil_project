@@ -40,19 +40,6 @@ glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
 ```
 With LASSO, all variables are used except Mn_ppm and NO3_D1_ppm. 
 
-```{r}
-library(leaps)
-bglm.exch.na <- mod_na %>% mutate(y=ExchNa_ppm) %>% select( Year, Depth_1, Soil_pH, Buffer_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, NO3_D1_lbs_A, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm)
-
-subset_na <- regsubsets(ExchNa_ppm~., data=bglm.exch.na, nvmax=14)
-
-summary(subset_na)
-```
-
-
-```{r}
-plot(subset_na, scale="bic")
-```
 
 
 

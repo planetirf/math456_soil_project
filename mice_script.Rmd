@@ -4,6 +4,11 @@ author: "Irfan Ainuddin"
 date: "5/8/2020"
 output: html_document
 ---
+
+```{r}
+sd <- readRDS(file = "./data/clean_soil_data.rds")
+```
+
 ## MICE
 ```{r}
 round(mean(is.na(sd))*100, 2)
