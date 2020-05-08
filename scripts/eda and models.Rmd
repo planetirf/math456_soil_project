@@ -13,6 +13,8 @@ library("psych")
 library("kableExtra")
 library("gplots")
 sd.data<- readRDS(file = "~/Desktop/clean_soil_data.rds")
+
+sd.data <- sd
 ```
 
 ```{r}
@@ -89,6 +91,9 @@ summary(imp_sd)
 ```{r}
 imp_sd$meth
 ```
+
+
+
 ```{r}
 plot(imp_sd)
 ```

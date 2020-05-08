@@ -151,7 +151,7 @@ pairs(df3[,16:19], pch=19)
 
 ```{r}
 ggplot(df3, aes(x=Date_Sampled)) + 
-  geom_point(aes(y=ExchNa_ppm), color="darkturquoise") +
+  geom_point(aes(y=ExchNa_ppm), color="blue") +
   geom_point(aes(y=ExchK_ppm), color="darkorchid3") +
   geom_smooth(aes(y=ExchNa_ppm), color="darkturquoise") +
   geom_smooth(aes(y=ExchK_ppm), color="darkorchid3") +
@@ -160,7 +160,7 @@ ggplot(df3, aes(x=Date_Sampled)) +
 
 ```{r}
 ggplot(df3, aes(x=Date_Sampled)) + 
-  geom_point(aes(y=Na_Sat_pct), color="darkturquoise") +
+  geom_point(aes(y=Na_Sat_pct), color="blue") +
   geom_point(aes(y=K_Sat_pct), color="darkorchid3") +
   geom_smooth(aes(y=Na_Sat_pct), color="darkturquoise") +
   geom_smooth(aes(y=K_Sat_pct), color="darkorchid3") +
