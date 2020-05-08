@@ -12,9 +12,8 @@ library("ggplot2")
 library("psych")
 library("kableExtra")
 library("gplots")
-sd.data<- readRDS(file = "~/Desktop/clean_soil_data.rds")
+sd.data<- readRDS(file = "../Desktop/clean_soil_data.rds")
 
-sd.data <- sd
 ```
 
 ```{r}
