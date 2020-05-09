@@ -16,13 +16,13 @@ library(mice)
 
 ```{r}
 sd <- readRDS(file = "./data/clean_soil_data.rds")
-imp_sd <- readRDS(file = "./data/imputed_data.rds")
+sd_imp <- readRDS(file = "./data/imputed_data.rds")
 ```
 
 
 
 ```{r}
-densityplot(imp_sd)
+densityplot(sd_imp)
 ```
 
 
@@ -31,14 +31,18 @@ densityplot(imp_sd)
 ## Variable Selection
 ```{r}
 #LASSO for predicting ExchNa
-mod_na <- sd_imp %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, Buffer_pH, Excess_Lime, Soluble_Salts, OM_pct, NO3_D1_ppm, NO3_D1_lbs_A, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm)
+mod_na <- sd_imp %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, treatment)
+
 y <- mod_na$ExchNa_ppm
+
 x <- model.matrix(data= mod_na, ExchNa_ppm ~ .)[,-1]
 set.seed(123)
+
 cv.lasso.na <-cv.glmnet(x,y, alpha=1)
 glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
+
 ```
-With LASSO, all variables are used except Mn_ppm and NO3_D1_ppm. 
+With LASSO, all variables are used except Mn_ppm and NO3_D1_ppm. Soluble_Salts,
 
 
 
@@ -126,7 +130,20 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 
 ```{r Sodium  PPM over time w/ irr facet}
 ## lets facet_wrap() by irrigation season
-ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sd$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) PPM") +
+            ggtitle("Sodium (Na) PPM over time by irrigation season")
+
+```
+
+```{r Sodium  PPM over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
             geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 

@@ -9,7 +9,7 @@ library(tidyverse)
 ```
 
 ```{r get_data}
-df <- read.csv("../data/pcp_soil_data/PCP-R-ready.csv")
+df <- read.csv("./data/pcp_soil_data/PCP-R-ready.csv")
 ```
 
 ```{r remove_na}
@@ -170,7 +170,18 @@ ggplot(df3, aes(x=Date_Sampled)) +
 
 
 ```{r}
-df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID", "Soil_pH", "Buffer_pH", "Excess_Lime", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "NO3_D1_lbs_A", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g", "Base_Sat_pct", "H_Sat_pct", "Ca_Sat_pct", "Mg_Sat_pct", "K_Sat_pct", "Na_Sat_pct")
+df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID", "Soil_pH", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g", "Base_Sat_pct", "H_Sat_pct", "Ca_Sat_pct", "Mg_Sat_pct", "K_Sat_pct", "Na_Sat_pct")
+
+```
+
+
+```{r}
+sd <- mutate(sd, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
+sd$treatment <- as.factor(sd$treatment)
+
+#sd_imp <- mutate(sd_imp, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
+#sd_imp$treatment <- as.factor(sd_imp$treatment)
+
 
 ```
 
