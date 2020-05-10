@@ -33,7 +33,7 @@ library(lubridate)
 ## set Date_Sampled from factor to Date
 df3$Date_Sampled <- mdy(as.character(df3$Date_Sampled))
 
-df3 <- df3
+df3 <- data.frame(df3)
 ## set empty xCrop_Name to factor level to NA  datatype
 
 ## convert xCrop_yield_Unit
@@ -110,7 +110,7 @@ library(psych)
 ```{r}
 ## Correlation matrix betwen Macronutrients
 
-pairs.panels(df3[,16:19],
+pairs.panels(df3[,17:20],
              method="pearson",
              hist.col="#00ced1",
              density=TRUE,
@@ -122,7 +122,7 @@ pairs.panels(df3[,16:19],
 ```{r}
 # Correation Matrix between micronutrients 
 
-pairs.panels(df3[,20:24],
+pairs.panels(df3[,21:25],
              method="pearson",
              hist.col="#9a32cd",
              density=TRUE,
@@ -170,14 +170,15 @@ ggplot(df3, aes(x=Date_Sampled)) +
 
 
 ```{r}
-df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID", "Soil_pH", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g", "Base_Sat_pct", "H_Sat_pct", "Ca_Sat_pct", "Mg_Sat_pct", "K_Sat_pct", "Na_Sat_pct")
+df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID", "Soil_pH", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g")
+
 
 ```
 
 
 ```{r}
-sd <- mutate(sd, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
-sd$treatment <- as.factor(sd$treatment)
+df4 <- mutate(df4, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
+df4$treatment <- as.factor(df4$treatment)
 
 #sd_imp <- mutate(sd_imp, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
 #sd_imp$treatment <- as.factor(sd_imp$treatment)
