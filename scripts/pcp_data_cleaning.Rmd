@@ -187,7 +187,12 @@ df4$treatment <- as.factor(df4$treatment)
 ```
 
 ```{r}
+## save working data set
 saveRDS(df4, file = "./data/clean_soil_data.rds")
+
+## save longer working data set  for other_scripts.
+saveRDS(df3, file="./data/other_clean_soil_data.rds")
+
 ```
 
 

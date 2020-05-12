@@ -1,0 +1,147 @@
+---
+title: "oldscripts"
+author: "Irfan Ainuddin"
+date: "5/11/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+library(pander)
+library(bestglm)
+library(glmnet)
+library(ROCR)
+library(mice)
+library(forestplot)
+```
+
+```{r}
+sdx <- readRDS(file = "./data/other_clean_soil_data.rds")
+```
+
+
+## Calcium Saturation Percent (%)
+```{r magnesium over time}
+ggplot(sdx, aes(x=sdx$Year, y=sdx$Ca_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$Ca_Sat_pct), col="blue", se=FALSE, method='lm')+
+            xlab("Sampling Date") +
+            ylab("Calcium (Ca) saturation percent (%)") +
+            ggtitle("Calcium saturation over time")
+```
+
+## Magnesium Saturation Percent (%)
+```{r magnesium over time}
+ggplot(sdx, aes(x=sdx$Year, y=sdx$Mg_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$Mg_Sat_pct), col="blue", se=FALSE, method='lm')+
+            xlab("Sampling Date") +
+            ylab("Magnesium (Mg) saturation percent (%)") +
+            ggtitle("Magnesium (Mg) saturation over time")
+```
+Overall magnesium trend is decreasing at all depths.
+
+## Sodium Saturation Percent (%)
+```{r Sodium over time}
+#
+ggplot(sdx, aes(x=sdx$Year, y=sdx$Na_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$Na_Sat_pct), col="blue", se=FALSE, method='lm') +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) saturation percent (%)") +
+            ggtitle("Sodium (Na) saturation over time")
+## irf: geom_smooth y changed from Mg_sat_pct  > Na_sat_pct
+```
+Overall Sodium (Na) saturation percent stays roughly the same over time. Sodium decreases by roughly 5 percent in the 0-12" depth class from 17 % to 11%  over 15 years. Sodium increases very slightly in the 13-24" depth class by 1% from 17% to 18%. Sodium increases by 5% total in the 25-36" depth class from 17% to 23%. Sodium increases by 8% total in the 37-48" depth class from 17% to 24%.
+
+These trends suggest that sodium is leeching out of the top soil into the subsoil primarily in the two lower depth classes. 
+
+
+```{r Sodium over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sdx, aes(x=sdx$Year, y=sdx$Na_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$Na_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sdx$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Sodium (Na) saturation percent (%)") +
+            ggtitle("Sodium (Na) saturation over time by irrigation season")
+```
+
+In all irrigation seasons the sodium saturation percent is decreasing for the 0-12" depth class. The samples collected 'Before' the irrigation are most similar to the overall changes shown. When we look at changes in sodium levels after irrigation and during the winter we see a decreasing trend for all of the soil depth classes, which is reflecting the soluble nature of sodium moving or leaching out with water in the natural environment. 
+
+
+Slightly higher Na Sat Pct in deeper layers. 
+
+```{r}
+ggplot(sdx, aes(x=sdx$Depth_1, y=sdx$Na_Sat_pct, fill=sdx$Depth_1)) + geom_boxplot() 
+```
+
+
+## Potassium Saturation Percent
+
+```{r Potassium over time }
+
+ggplot(sdx, aes(x=sdx$Year, y=sdx$K_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            xlab("Sampling Date") +
+            ylab("Potassium (K) saturation percent (%)") +
+            ggtitle("Potassium (K) saturation over time")
+```
+
+```{r Potassium over time w/ irr facet}
+## lets facet_wrap() by irrigation season
+ggplot(sdx, aes(x=sdx$Year, y=sdx$K_Sat_pct, col=as.factor(sdx$Depth_1))) + 
+            geom_point() + theme_bw() + theme(legend.position="top") + 
+            geom_smooth(se=FALSE, method="lm") + 
+            geom_smooth(aes(x=sdx$Year, y=sdx$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
+            facet_wrap(sdx$Irr_season) +
+            xlab("Sampling Date") +
+            ylab("Potassium (K) saturation percent (%)") +
+            ggtitle("Potassium (K) saturation over time by irrigation season")
+## not sure how to interpet all of this, i sort of think the winter sampling irragtion season doesnt make sense
+```
+
+
+## Table of Sodium (Na) saturation percent (%) 
+```{r}
+sdx %>% group_by(Depth_1) %>%
+ summarise(mean=mean(Na_Sat_pct, na.rm=TRUE),
+           sdx = sdx(Na_Sat_pct, na.rm=TRUE),
+              n = n()
+              ) %>% kable
+```
+
+```{r}
+ggplot(sdx, aes(x=Na_Sat_pct, fill=Depth_1)) + ylab("") + geom_density(alpha=0.5) + 
+  facet_grid(Depth_1~.) +
+  scale_y_continuous(breaks=NULL) + 
+  theme_bw() +
+  labs(title="Average Sodium (Na) Saturation (%)") +
+  scale_fill_discrete(name="Depths") 
+  
+```
+
+
+
+```{r}
+aov(Na_Sat_pct~Year, data=sdx) %>% summary() 
+TukeyHsdx(aov(Na_Sat_pct~Year, data=sdx)) 
+
+## Models aren't correct because depth_1 is a categorical var? its calculating anyways though?
+summary(lm(Na_Sat_pct~Year, data=sdx)) 
+confint(lm(Na_Sat_pct~Year, data=sdx)) %>% kable()
+```
+
+Na saturation percent looks like its significantly different from each other at each depth? or 
+
+
+Overall potassium seems to be increasing with a positive linear trend over time for all soil horizons (depth classes).

@@ -12,26 +12,100 @@ library(bestglm)
 library(glmnet)
 library(ROCR)
 library(mice)
+library(forestplot)
 ```
 
 ```{r}
 sd <- readRDS(file = "./data/clean_soil_data.rds")
 sd_imp <- readRDS(file = "./data/imputed_data.rds")
+#create a working set of imputed data.
+imp25 <- complete(sd_imp, action=25)
+
 ```
+
+```{r}
+```
+
 
 
 
 ```{r}
-densityplot(sd_imp)
+densityplot(imp25)
 ```
 
+
+## Modeling Exchangable Sodium (ExchNa_ppm) and multiple imputation
+```{r}
+# with() use the imputed data set and run the model on every imputation (m=30)
+model <- with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment))
+
+## pool() calculate pooled estimates using rubin's rules. 
+mi.estimates <- summary(pool(model))
+mi.estimates <- mi.estimates[-1,]
+
+kable(pool(model)$pooled[c(1:4,8:9)], digits=3)
+```
+
+```{r}
+## run model with regular data set, complete denotes the fact that the lm will drop any missing observations
+complete.model <- lm(ExchNa_ppm ~ Date_Sampled + Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment, data = sd)
+
+
+## extract beta estimates from the complete model.
+betas <- c(coef(complete.model)[1:4], NA, coef(complete.model)[5:length(coef(complete.model))])
+#remove the intercept estimates
+betas <- betas[-1]
+
+## calculate and bind the confidence interval, insert NA value for missing winter factor level, bind rest of the CI's
+ci <- rbind(confint(complete.model)[1:4,], NA, confint(complete.model)[5:NROW(confint(complete.model)),])
+#remove the intercept estimates
+ci <- ci[-1,]
+
+```
+
+```{r}
+# FOREST PLOTS: 
+## complete case (cc) multiple imputation model (mi)
+cc.mean <- betas
+mi.mean <- mi.estimates[,2]
+## calcualte lower limit of CI
+cc.ll   <- ci[,1]
+mi.ll   <- mi.mean - 1.96*mi.estimates[,3]
+## calcualte upper limit of NI
+cc.ul   <- ci[,2]
+mi.ul   <- mi.mean + 1.96*mi.estimates[,3]
+# create names vector to use in forestplot. 
+names   <- as.character(mi.estimates[,1])
+
+
+#create forest plot to visualize variance between complete model and mice model
+forestplot(names, 
+           legend = c("Complete Model", "MICE"),
+           fn.ci_norm = c(fpDrawNormalCI, fpDrawCircleCI), 
+           mean = cbind(cc.mean, mi.mean), 
+           lower = cbind(cc.ll, mi.ll),
+           upper = cbind(cc.ul, mi.ul), 
+           col=fpColors(box=c("blue", "darkred")), 
+           xlab="Regression coefficients",
+           boxsize = .1
+           )
+```
+
+
+Wow the scale of variation here is pretty huge, robin suggested we break this into two  graphs and separate by size.
 
 
 
 ## Variable Selection
+
+
 ```{r}
-#LASSO for predicting ExchNa
-mod_na <- sd_imp %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, treatment)
+## NON IMPUTED DATA SET:
+#LASSO for predicting ExchNa 
+mod_na <- sd %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+
+##Required, otherwise x  x and y didnt match up. ExchNa has no missing data
+mod_na <- na.omit(mod_na)
 
 y <- mod_na$ExchNa_ppm
 
@@ -42,9 +116,30 @@ cv.lasso.na <-cv.glmnet(x,y, alpha=1)
 glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
 
 ```
-With LASSO, all variables are used except Mn_ppm and NO3_D1_ppm. Soluble_Salts,
+
+Using soil data with using only complete cases, LASSO dropped: Date_Sampled, Year, Field 3,5,8, Depths 13-24, 37-48, OM_pct, Bicarb_P_ppm, Fe_ppm, Cu_ppm
 
 
+
+```{r}
+## IMPUTED DATA SET: USING IMPUTATION SET #25
+#LASSO for predicting ExchNa 
+imp_na <- imp25 %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+
+imp_na <- na.omit(imp_na)
+
+y <- imp_na$ExchNa_ppm
+
+x <- model.matrix(data= imp_na, ExchNa_ppm ~ .)[,-1]
+set.seed(123)
+
+cv.lasso.na <-cv.glmnet(x,y, alpha=1)
+glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
+
+```
+
+
+With the imputed data set LASSO only dropws the Winter factor level of the Irrigation Season.
 
 
 ## Date Distribution
@@ -52,67 +147,6 @@ With LASSO, all variables are used except Mn_ppm and NO3_D1_ppm. Soluble_Salts,
 hist(sd$Year)
 ```
 Most of the data was collected 2000-2005. 
-
-## Calcium Saturation Percent (%)
-```{r magnesium over time}
-ggplot(sd, aes(x=sd$Year, y=sd$Ca_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Ca_Sat_pct), col="blue", se=FALSE, method='lm')+
-            xlab("Sampling Date") +
-            ylab("Calcium (Ca) saturation percent (%)") +
-            ggtitle("Calcium saturation over time")
-```
-
-## Magnesium Saturation Percent (%)
-```{r magnesium over time w/ facet by irrigation}
-ggplot(sd, aes(x=sd$Year, y=sd$Mg_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Mg_Sat_pct), col="blue", se=FALSE, method='lm')+
-            xlab("Sampling Date") +
-            ylab("Magnesium (Mg) saturation percent (%)") +
-            ggtitle("Magnesium (Mg) saturation over time")
-```
-Overall magnesium trend is decreasing at all depths.
-
-## Sodium Saturation Percent (%)
-```{r Sodium over time}
-#
-ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') +
-            xlab("Sampling Date") +
-            ylab("Sodium (Na) saturation percent (%)") +
-            ggtitle("Sodium (Na) saturation over time")
-## irf: geom_smooth y changed from Mg_sat_pct  > Na_sat_pct
-```
-Overall Sodium (Na) saturation percent stays roughly the same over time. Sodium decreases by roughly 5 percent in the 0-12" depth class from 17 % to 11%  over 15 years. Sodium increases very slightly in the 13-24" depth class by 1% from 17% to 18%. Sodium increases by 5% total in the 25-36" depth class from 17% to 23%. Sodium increases by 8% total in the 37-48" depth class from 17% to 24%.
-
-These trends suggest that sodium is leeching out of the top soil into the subsoil primarily in the two lower depth classes. 
-
-
-```{r Sodium over time w/ irr facet}
-## lets facet_wrap() by irrigation season
-ggplot(sd, aes(x=sd$Year, y=sd$Na_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$Na_Sat_pct), col="blue", se=FALSE, method='lm') + 
-            facet_wrap(sd$Irr_season) +
-            xlab("Sampling Date") +
-            ylab("Sodium (Na) saturation percent (%)") +
-            ggtitle("Sodium (Na) saturation over time by irrigation season")
-```
-
-In all irrigation seasons the sodium saturation percent is decreasing for the 0-12" depth class. The samples collected 'Before' the irrigation are most similar to the overall changes shown. When we look at changes in sodium levels after irrigation and during the winter we see a decreasing trend for all of the soil depth classes, which is reflecting the soluble nature of sodium moving or leaching out with water in the natural environment. 
-
-
-Slightly higher Na Sat Pct in deeper layers. 
-
-```{r}
-ggplot(sd, aes(x=sd$Depth_1, y=sd$Na_Sat_pct, fill=sd$Depth_1)) + geom_boxplot() 
-```
 
 
 ## Exchangable Sodium (Na) Parts Per Million
@@ -130,7 +164,7 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 
 ```{r Sodium  PPM over time w/ irr facet}
 ## lets facet_wrap() by irrigation season
-ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
             geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
@@ -143,10 +177,10 @@ ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 
 ```{r Sodium  PPM over time w/ irr facet}
 ## lets facet_wrap() by irrigation season
-ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd, aes(x=sd$Year, y=sd$ExchMg_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
+            geom_smooth(aes(x=sd$Year, y=sd$ExchMg_ppm), col="blue", se=FALSE, method='lm') + 
             facet_wrap(sd$Irr_season) +
             xlab("Sampling Date") +
             ylab("Sodium (Na) PPM") +
@@ -154,40 +188,11 @@ ggplot(sd_imp, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 
 ```
 
-## Potassium Saturation Percent
-
-```{r Potassium over time }
-
-ggplot(sd, aes(x=sd$Year, y=sd$K_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
-            xlab("Sampling Date") +
-            ylab("Potassium (K) saturation percent (%)") +
-            ggtitle("Potassium (K) saturation over time")
-```
-
-Overall potassium seems to be increasing with a positive linear trend over time for all soil horizons (depth classes).
-
-
-
-```{r Potassium over time w/ irr facet}
-## lets facet_wrap() by irrigation season
-ggplot(sd, aes(x=sd$Year, y=sd$K_Sat_pct, col=as.factor(sd$Depth_1))) + 
-            geom_point() + theme_bw() + theme(legend.position="top") + 
-            geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$K_Sat_pct), col="blue", se=FALSE, method='lm') + 
-            facet_wrap(sd$Irr_season) +
-            xlab("Sampling Date") +
-            ylab("Potassium (K) saturation percent (%)") +
-            ggtitle("Potassium (K) saturation over time by irrigation season")
-## not sure how to interpet all of this, i sort of think the winter sampling irragtion season doesnt make sense
-```
 
 ## Exchangable Potassium (K) Parts Per Million
 ```{r Potassium PPM over }
 
-ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd, aes(x=sd$Year, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
             geom_smooth(aes(x=sd$Year, y=sd$ExchK_ppm), col="blue", se=FALSE, method='lm') + 
@@ -210,36 +215,8 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) +
 
 ```
 
-## Table of Sodium (Na) saturation percent (%) 
-```{r}
-sd %>% group_by(Depth_1) %>%
- summarise(mean=mean(Na_Sat_pct, na.rm=TRUE),
-           sd = sd(Na_Sat_pct, na.rm=TRUE),
-              n = n()
-              ) %>% kable
-```
 
-```{r}
-ggplot(sd, aes(x=Na_Sat_pct, fill=Depth_1)) + ylab("") + geom_density(alpha=0.5) + 
-  facet_grid(Depth_1~.) +
-  scale_y_continuous(breaks=NULL) + 
-  theme_bw() +
-  labs(title="Average Sodium (Na) Saturation (%)") +
-  scale_fill_discrete(name="Depths") 
-  
-```
-
-
-```{r}
-aov(Na_Sat_pct~Year, data=sd) %>% summary() 
-TukeyHSD(aov(Na_Sat_pct~Year, data=sd)) 
-
-## Models aren't correct because depth_1 is a categorical var? its calculating anyways though?
-summary(lm(Na_Sat_pct~Year, data=sd)) 
-confint(lm(Na_Sat_pct~Year, data=sd)) %>% kable()
-```
-
-Na saturation percent looks like its significantly different from each other at each depth? or 
+## Using Date_Sampled as the X axis
 
 ```{r}
 
