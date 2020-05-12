@@ -16,8 +16,8 @@ library(forestplot)
 ```
 
 ```{r}
-sd <- readRDS(file = "./data/clean_soil_data.rds")
-sd_imp <- readRDS(file = "./data/imputed_data.rds")
+sd <- readRDS(file = "../data/clean_soil_data.rds")
+sd_imp <- readRDS(file = "../data/imputed_data.rds")
 #create a working set of imputed data.
 imp25 <- complete(sd_imp, action=25)
 
@@ -80,7 +80,7 @@ names   <- as.character(mi.estimates[,1])
 
 #create forest plot to visualize variance between complete model and mice model
 forestplot(names, 
-           legend = c("Complete Model", "MICE"),
+           legend = c("True Model", "MICE"),
            fn.ci_norm = c(fpDrawNormalCI, fpDrawCircleCI), 
            mean = cbind(cc.mean, mi.mean), 
            lower = cbind(cc.ll, mi.ll),
@@ -158,7 +158,8 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
             geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
             xlab("Sampling Date") +
             ylab("Sodium (Na) PPM") +
-            ggtitle("Sodium (Na) PPM over time")
+            ggtitle("Sodium (Na) PPM over time")+
+            labs(col="Depth (inches)")
 ```
 
 
@@ -171,8 +172,7 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
             facet_wrap(sd$Irr_season) +
             xlab("Sampling Date") +
             ylab("Sodium (Na) PPM") +
-            ggtitle("Sodium (Na) PPM over time by irrigation season")
-
+            ggtitle("Sodium (Na) PPM over time by irrigation season") + labs(col="Depth (inches)")
 ```
 
 ```{r Sodium  PPM over time w/ irr facet}
@@ -183,8 +183,8 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchMg_ppm, col=as.factor(sd$Depth_1))) +
             geom_smooth(aes(x=sd$Year, y=sd$ExchMg_ppm), col="blue", se=FALSE, method='lm') + 
             facet_wrap(sd$Irr_season) +
             xlab("Sampling Date") +
-            ylab("Sodium (Na) PPM") +
-            ggtitle("Sodium (Na) PPM over time by irrigation season")
+            ylab("Sodium (Mg) PPM") +
+            ggtitle("Magnesium (Mg) PPM Over Time by Irrigation Season") + labs(col="Depth (inches)")
 
 ```
 
