@@ -20,7 +20,13 @@ library(gridExtra)
 sd <- readRDS(file = "../data/clean_soil_data.rds")
 sd_imp <- readRDS(file = "../data/imputed_data.rds")
 #create a working set of imputed data.
+imp5 <- complete(sd_imp, action=5)
+
 imp25 <- complete(sd_imp, action=25)
+
+imp24 <- complete(sd_imp, action=24)
+
+sd_imp_long <- complete(sd_imp, 'long')
 
 ```
 
@@ -52,20 +58,20 @@ lm(ExchNa_ppm ~ ExchK_ppm, data=sd) %>% summary
 lm(ExchNa_ppm ~ ExchK_ppm + treatment, data=sd) %>% summary
 
 
-lm(ExchNa_ppm ~ ExchK_ppm + treatment + treatment*ExchK_ppm, data=sd) %>% summary
+lm(ExchNa_ppm ~ ExchK_ppm + treatment + treatment*ExchK_ppm, data=sd) %>% summary 
 
 ```
 
-```{r}
-lm(ExchNa_ppm ~  Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment,data = sd) %>% summary
+```{r Imputed Model}
+with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment)) %>% pool() %>% summary()
 ```
 
 
 
 ```{r }
-overall <- ggplot(imp25, aes(x=Year, y=ExchNa_ppm)) + geom_point() + geom_smooth(se=FALSE) + theme_bw()
+overall <- ggplot(sd, aes(x=Date_Sampled, y=ExchNa_ppm)) + geom_point() + geom_smooth(se=FALSE) + theme_bw()
 
-by_depth <- ggplot(imp25, aes(x=Depth_1, y=ExchNa_ppm, col=treatment)) + geom_point() + geom_smooth(se=FALSE) + theme_bw() + theme(legend.position="top")
+by_depth <- ggplot(sd, aes(x=Date_Sampled, y=ExchNa_ppm, col=Depth_1)) + geom_point() + geom_smooth(se=FALSE) + theme_bw() + theme(legend.position="top")
 
 
 grid.arrange(overall, by_depth, ncol=2)
@@ -75,7 +81,7 @@ grid.arrange(overall, by_depth, ncol=2)
 ## Modeling Exchangable Sodium (ExchNa_ppm) and multiple imputation
 ```{r Imputed Pooled Model}
 # with() use the imputed data set and run the model on every imputation (m=30)
-model <- with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment))
+model <- with(sd_imp, lm(ExchNa_ppm ~Date_Sampled + Year + Irr_season + Depth_1 + Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment))
 
 ## pool() calculate pooled estimates using rubin's rules. 
 mi.estimates <- summary(pool(model))
@@ -89,13 +95,16 @@ kable(pool(model)$pooled[c(1:4,8:9)], digits=3)
 
 ```{r Complete Model}
 ## run model with regular data set, complete denotes the fact that the lm will drop any missing observations
-complete.model <- lm(ExchNa_ppm ~ Date_Sampled + Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment, data = sd)
+complete.model <- lm(ExchNa_ppm ~ Date_Sampled + Year + Irr_season + Depth_1 + Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment, data = sd)
 
 
 ## extract beta estimates from the complete model.
 betas <- c(coef(complete.model)[1:4], NA, coef(complete.model)[5:length(coef(complete.model))])
+
 #remove the intercept estimates
 betas <- betas[-1]
+
+#betas.large <- betas %>% Select(Date_Sampled, Year, Irr_season, Soil_pH, Soluble_Salts, treatmentPotassium, `ExchK_ppm:treatmentPotassium` )
 
 ## calculate and bind the confidence interval, insert NA value for missing winter factor level, bind rest of the CI's
 ci <- rbind(confint(complete.model)[1:4,], NA, confint(complete.model)[5:NROW(confint(complete.model)),])
@@ -128,7 +137,8 @@ forestplot(names,
            upper = cbind(cc.ul, mi.ul), 
            col=fpColors(box=c("blue", "darkred")), 
            xlab="Regression coefficients",
-           boxsize = .1
+           boxsize = .2,
+           clip = c(-150,150)
            )
 ```
 
@@ -140,7 +150,7 @@ Wow the scale of variation here is pretty huge, robin suggested we break this in
 ## Variable Selection
 
 
-```{r}
+```{r LASSO }
 ## NON IMPUTED DATA SET:
 #LASSO for predicting ExchNa 
 mod_na <- sd %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
@@ -162,10 +172,10 @@ Using soil data with using only complete cases, LASSO dropped: Date_Sampled, Yea
 
 
 
-```{r}
+```{r LASSO Imputed}
 ## IMPUTED DATA SET: USING IMPUTATION SET #25
 #LASSO for predicting ExchNa 
-imp_na <- imp25 %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+imp_na <- imp24 %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
 
 imp_na <- na.omit(imp_na)
 
@@ -180,7 +190,7 @@ glmnet(x,y,alpha=1, lambda=cv.lasso.na$lambda.min) %>% coef()
 ```
 
 
-With the imputed data set LASSO only dropws the Winter factor level of the Irrigation Season.
+With the imputed data set LASSO only drops the Winter factor level of the Irrigation Season.
 
 
 ## Date Distribution
@@ -201,15 +211,23 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
             ylab("Sodium (Na) PPM") +
             ggtitle("Sodium (Na) PPM over time")+
             labs(col="Depth (inches)")
+
+
+sd_imp_long %>% group_by(.imp) %>%
+  ggplot(aes(Date_Sampled, ExchNa_ppm, col=as.factor(Depth_1))) +
+    geom_point() +
+  facet_wrap(~Irr_season) +
+  theme_bw() +
+  theme(legend.position="top")
 ```
 
 
 ```{r Sodium  PPM over time w/ irr facet}
 ## lets facet_wrap() by irrigation season
-ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
+            geom_smooth(aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
             facet_wrap(sd$Irr_season) +
             xlab("Sampling Date") +
             ylab("Sodium (Na) PPM") +
