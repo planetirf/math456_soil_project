@@ -23,14 +23,35 @@ imp25 <- complete(sd_imp, action=25)
 
 ```
 
+## Checking for confounders
 ```{r}
+lm(ExchNa_ppm ~ Irr_season, data=imp25) %>% summary
+```
+```{r}
+lm(ExchNa_ppm ~ Year, data=imp25) %>% summary
 ```
 
+```{r}
+lm(ExchNa_ppm ~ Year + Irr_season, data=imp25) %>% summary
+```
+Year and irrigation are not confounders.
 
+```{r}
+lm(ExchNa_ppm ~ Depth_1, data=imp25) %>% summary
+```
+```{r}
+lm(ExchNa_ppm ~ Depth_1 + Year, data=imp25) %>% summary
+```
+Depth is not a confoudner.
 
 
 ```{r}
-densityplot(imp25)
+overall <- ggplot(imp25, aes(x=Year, y=ExchNa_ppm)) + geom_point() + geom_smooth(se=FALSE) + theme_bw()
+
+by_depth <- ggplot(imp25, aes(y=Depth_1, x=ExchNa_ppm, col=treatment)) + geom_point() + geom_smooth(se=FALSE) + theme_bw() + theme(legend.position="top")
+
+library(gridExtra)
+grid.arrange(overall, by_depth, ncol=2)
 ```
 
 
@@ -45,6 +66,9 @@ mi.estimates <- mi.estimates[-1,]
 
 kable(pool(model)$pooled[c(1:4,8:9)], digits=3)
 ```
+
+
+
 
 ```{r}
 ## run model with regular data set, complete denotes the fact that the lm will drop any missing observations
