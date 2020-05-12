@@ -39,10 +39,26 @@ Year and irrigation are not confounders.
 ```{r}
 lm(ExchNa_ppm ~ Depth_1, data=imp25) %>% summary
 ```
+
 ```{r}
 lm(ExchNa_ppm ~ Depth_1 + Year, data=imp25) %>% summary
 ```
 Depth is not a confoudner.
+
+```{r}
+lm(ExchNa_ppm ~ ExchK_ppm, data=sd) %>% summary
+
+lm(ExchNa_ppm ~ ExchK_ppm + treatment, data=sd) %>% summary
+
+
+lm(ExchNa_ppm ~ ExchK_ppm + treatment + treatment*ExchK_ppm, data=sd) %>% summary
+
+```
+
+```{r}
+lm(ExchNa_ppm ~  Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment,data = sd) %>% summary
+```
+
 
 
 ```{r}

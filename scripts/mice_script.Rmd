@@ -36,7 +36,7 @@ plot(imp_sd)
 ## Modeling Exchangable Sodium (ExchNa_ppm) and multiple imputation
 ```{r}
 # with() use the imputed data set and run the model on every imputation (m=30)
-model <- with(imp_sd, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment))
+model <- with(imp_sd, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + Na_Sat_pct))
 
 ## pool() calculate pooled estimates using rubin's rules. 
 mi.estimates <- summary(pool(model))
@@ -47,7 +47,7 @@ kable(pool(model)$pooled[c(1:4,8:9)], digits=3)
 
 ```{r}
 ## run model with regular data set, complete denotes the fact that the lm will drop any missing observations
-complete.model <- lm(ExchNa_ppm ~ Date_Sampled + Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment, data = sd)
+complete.model <- lm(ExchNa_ppm ~ Date_Sampled + Year + Irr_season + Field_ID + Soil_pH + Soluble_Salts + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + Na_Sat_pct, data = sd)
 
 
 ## extract beta estimates from the complete model.
