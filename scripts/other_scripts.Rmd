@@ -21,6 +21,19 @@ library(forestplot)
 sdx <- readRDS(file = "./data/other_clean_soil_data.rds")
 ```
 
+```{r}
+sd <- readRDS(file = "../data/clean_soil_data.rds")
+sd_imp <- readRDS(file = "../data/imputed_data.rds")
+#create a working set of imputed data.
+imp5 <- complete(sd_imp, action=5)
+
+imp25 <- complete(sd_imp, action=25)
+
+imp24 <- complete(sd_imp, action=24)
+
+sd_imp_long <- complete(sd_imp, 'long')
+```
+
 
 ## Calcium Saturation Percent (%)
 ```{r magnesium over time}
