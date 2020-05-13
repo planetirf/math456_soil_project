@@ -35,6 +35,10 @@ sd_imp_long <- complete(sd_imp, 'long')
 ```
 
 
+
+
+# ######################### OLD SCRIPT ########################### #
+
 ## Calcium Saturation Percent (%)
 ```{r magnesium over time}
 ggplot(sdx, aes(x=sdx$Year, y=sdx$Ca_Sat_pct, col=as.factor(sdx$Depth_1))) + 

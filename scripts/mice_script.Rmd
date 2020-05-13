@@ -17,6 +17,8 @@ sd <- readRDS(file = "./data/clean_soil_data.rds")
 ## MICE
 ```{r}
 round(mean(is.na(sd))*100, 2)
+
+sd[,6:21] <- scale(sd[,6:21])
 ```
 Twelve percent of this data is missing. 
 
