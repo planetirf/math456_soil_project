@@ -188,7 +188,7 @@ Using soil data with using only complete cases, LASSO dropped: Date_Sampled, Yea
 ```{r LASSO Imputed}
 ## IMPUTED DATA SET: USING IMPUTATION SET #25
 #LASSO for predicting ExchNa 
-imp_na <- sd_imp_long %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+imp_na <- imp5 %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
 
 
 
