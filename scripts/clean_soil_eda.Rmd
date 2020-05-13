@@ -153,7 +153,7 @@ Wow the scale of variation here is pretty huge, robin suggested we break this in
 ```{r LASSO }
 ## NON IMPUTED DATA SET:
 #LASSO for predicting ExchNa 
-mod_na <- sd %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+mod_na <- sd %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
 
 ##Required, otherwise x  x and y didnt match up. ExchNa has no missing data
 mod_na <- na.omit(mod_na)
@@ -175,7 +175,7 @@ Using soil data with using only complete cases, LASSO dropped: Date_Sampled, Yea
 ```{r LASSO Imputed}
 ## IMPUTED DATA SET: USING IMPUTATION SET #25
 #LASSO for predicting ExchNa 
-imp_na <- imp24 %>% select(Date_Sampled, Year, Field_ID, Irr_season, Depth_1, Soil_pH, Soluble_Salts, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
+imp_na <- sd_imp_long %>% select(Date_Sampled, Year, Irr_season, Depth_1, Soil_pH, OM_pct, NO3_D1_ppm, Bicarb_P_ppm, SO4_ppm, ExchK_ppm, ExchCa_ppm, ExchMg_ppm, ExchNa_ppm, Zn_ppm, Fe_ppm, Mn_ppm, Cu_ppm, Boron_ppm, CEC_me_100g, treatment)
 
 imp_na <- na.omit(imp_na)
 
@@ -212,11 +212,22 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
             ggtitle("Sodium (Na) PPM over time")+
             labs(col="Depth (inches)")
 
+```
 
+```{r}
 sd_imp_long %>% group_by(.imp) %>%
   ggplot(aes(Date_Sampled, ExchNa_ppm, col=as.factor(Depth_1))) +
     geom_point() +
-  facet_wrap(~Irr_season) +
+  geom_smooth(method = "lm") +
+  facet_grid(Depth_1~Irr_season) +
+  theme_bw() +
+  theme(legend.position="top")
+
+sd %>%
+  ggplot(aes(Date_Sampled, ExchNa_ppm, col=as.factor(Depth_1))) +
+    geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(Depth_1~Irr_season) +
   theme_bw() +
   theme(legend.position="top")
 ```
@@ -228,10 +239,17 @@ ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
             geom_smooth(aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm), col="blue", se=FALSE, method='lm') + 
-            facet_wrap(sd$Irr_season) +
+            facet_wrap(sd$Depth_1) +
             xlab("Sampling Date") +
             ylab("Sodium (Na) PPM") +
             ggtitle("Sodium (Na) PPM over time by irrigation season") + labs(col="Depth (inches)")
+```
+
+```{r Sodium Tables}
+sd %>% group_by(Year) %>% summarise("mean sodium"=mean(ExchNa_ppm))
+sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm))
+
+sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm)) %>% ggplot(aes(x=Depth_1, y=Sodium)) + geom_bar(stat="identity") + geom_label(aes(label=Sodium)) + theme_bw()
 ```
 
 ```{r Sodium  PPM over time w/ irr facet}
@@ -249,15 +267,16 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchMg_ppm, col=as.factor(sd$Depth_1))) +
 
 
 ## Exchangable Potassium (K) Parts Per Million
-```{r Potassium PPM over }
+```{r Potassium PPM over  Time}
 
-ggplot(sd, aes(x=sd$Year, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
+ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchK_ppm, col=as.factor(sd$Depth_1))) + 
             geom_point() + theme_bw() + theme(legend.position="top") + 
             geom_smooth(se=FALSE, method="lm") + 
-            geom_smooth(aes(x=sd$Year, y=sd$ExchK_ppm), col="blue", se=FALSE, method='lm') + 
+            geom_smooth(aes(x=sd$Date_Sampled, y=sd$ExchK_ppm), col="blue", se=FALSE, method='lm') + 
             xlab("Sampling Date") +
             ylab("Potassium (K) PPM") +
-            ggtitle("Potassium (K) PPM over time")
+            ggtitle("Potassium (K) PPM over time") +
+            scale_fill_grey()
 ```
 
 
