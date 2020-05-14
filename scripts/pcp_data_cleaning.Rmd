@@ -173,6 +173,7 @@ ggplot(df3, aes(x=Date_Sampled)) +
 df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID", "Soil_pH", "Soluble_Salts", "OM_pct", "NO3_D1_ppm", "Bicarb_P_ppm", "SO4_ppm", "ExchK_ppm", "ExchCa_ppm", "ExchMg_ppm", "ExchNa_ppm", "Zn_ppm", "Fe_ppm", "Mn_ppm", 'Cu_ppm', "Boron_ppm", "CEC_me_100g")
 
 
+
 ```
 
 
@@ -194,6 +195,35 @@ saveRDS(df4, file = "./data/clean_soil_data.rds")
 saveRDS(df3, file="./data/other_clean_soil_data.rds")
 
 ```
+
+
+```{r}
+prop.miss4 <- apply(df4, 2, function(x) round(sum(is.na(x))/NROW(x),4))
+prop.miss4
+
+
+pmpv4 <- data.frame(variable = names(df4), pct.miss4=prop.miss4)
+
+```
+
+```{r}
+ggplot(pmpv4, aes(x= reorder(variable, pct.miss4), y=pct.miss4, fill=pct.miss4)) +
+  geom_bar(stat="identity") + 
+  ggtitle("Missing Data") +
+  ylab("Percent Missing") + 
+  xlab("Variables") +
+  scale_y_continuous(labels=scales::percent, limits=c(0,1.03)) + 
+  geom_text(data=pmpv4, aes(label=paste0(round(pct.miss4*100,1),"%"), y=pct.miss4+.03), size=2) +
+  coord_flip() +
+  theme(axis.text.y = element_text()) +
+  scale_fill_gradient(low="darkturquoise",high="darkorchid3")
+  
+aggr(df4, col=c('darkturquoise','darkorchid3'),
+              numbers=TRUE, sortVars=TRUE, prop=TRUE,border=TRUE, combined=TRUE,
+              labels=names(df4), cex.axis=.4, cex.numbers=.5, varheight=FALSE,
+              gap=0, ylab=c("Missing data","Pattern"))
+```
+
 
 
 

@@ -75,9 +75,24 @@ lm(ExchNa_ppm ~ ExchK_ppm + treatment + treatment*ExchK_ppm, data=sd) %>% summar
 
 ```
 
-```{r Imputed Model}
+```{r Simple Standard Model}
+lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 + treatment + ExchK_ppm + ExchK_ppm * treatment, data=imp24) %>%  summary()
+```
+
+```{r Standard Model}
+lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment, data=sd) %>%  summary()
+```
+
+
+```{r Imputed  Model 25}
+lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment, data=imp25) %>%  summary()
+```
+
+
+```{r Imputed ALL Model}
 with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment)) %>% pool() %>% summary() 
 ```
+
 
 
 
@@ -241,13 +256,32 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 ```
 
 ```{r}
-imp25 %>%
+
+sd %>%
+  ggplot(aes(Year, ExchNa_ppm)) +
+    geom_point(alpha=.5) +
+    geom_smooth(col="brown",se=FALSE) +
+  theme_bw() +
+  theme(legend.position="top") +
+    scale_color_manual(values=browns)
+
+sd %>%
+  ggplot(aes(Year, ExchNa_ppm)) +
+    geom_point(alpha=.5) +
+    geom_smooth(col="brown",se=FALSE) +
+  theme_bw() +
+  theme(legend.position="top") +
+    scale_color_manual(values=browns)
+
+imp24 %>%
   ggplot(aes(Year, ExchNa_ppm, col=as.factor(Depth_1))) +
     geom_point(alpha=.5) +
     geom_smooth(se=FALSE) +
-  facet_grid(Depth_1~Irr_season) +
+  facet_grid(Depth_1~.) +
   theme_bw() +
-  theme(legend.position="top") +
+  ylab('Sodium - Na (ppm)') +
+  theme(legend.position="top",
+        legend.title = element_blank()) +
     scale_color_manual(values=browns)
 
 sd %>%
@@ -274,7 +308,7 @@ ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 ```
 
 ```{r Sodium Tables}
-sd %>% group_by(Year) %>% summarise("mean sodium"=mean(ExchNa_ppm))
+sd %>%  summarise("mean sodium"=mean(ExchNa_ppm))
 sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm))
 
 sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm)) %>% ggplot(aes(x=Depth_1, y=Sodium)) + geom_bar(stat="identity") + geom_label(aes(label=Sodium)) + theme_bw()
