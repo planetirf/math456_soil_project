@@ -181,6 +181,8 @@ df4 <- df3 %>% select("Date_Sampled","Year","Irr_season", "Depth_1", "Field_ID",
 df4 <- mutate(df4, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
 df4$treatment <- as.factor(df4$treatment)
 
+sd$treatment <- mutate(, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
+sd$treatment <- as.factor(sd$treatment)
 #sd_imp <- mutate(sd_imp, treatment = ifelse( Year < 2013, "Sodium","Potassium"))
 #sd_imp$treatment <- as.factor(sd_imp$treatment)
 
@@ -218,9 +220,16 @@ ggplot(pmpv4, aes(x= reorder(variable, pct.miss4), y=pct.miss4, fill=pct.miss4))
   theme(axis.text.y = element_text()) +
   scale_fill_gradient(low="darkturquoise",high="darkorchid3")
   
-aggr(df4, col=c('darkturquoise','darkorchid3'),
-              numbers=TRUE, sortVars=TRUE, prop=TRUE,border=TRUE, combined=TRUE,
-              labels=names(df4), cex.axis=.4, cex.numbers=.5, varheight=FALSE,
+
+
+aggr(df3, col=c('#DFC27D','#8C510A'),
+              numbers=TRUE, sortVars=TRUE, prop=FALSE,border=TRUE, combined=TRUE,
+              labels=FALSE, cex.axis=.5, cex.numbers=1, varheight=FALSE,
+              gap=0, ylab=c("Missing data","Pattern"))
+
+aggr(df4, col=c('#DFC27D','#8C510A'),
+              numbers=FALSE, sortVars=TRUE,bar=TRUE, prop=FALSE,border=TRUE, combined=TRUE,
+              labels=TRUE, cex.numbers=1, varheight=FALSE, digits=2,
               gap=0, ylab=c("Missing data","Pattern"))
 ```
 

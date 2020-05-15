@@ -75,11 +75,16 @@ lm(ExchNa_ppm ~ ExchK_ppm + treatment + treatment*ExchK_ppm, data=sd) %>% summar
 
 ```
 
+```{r}
+sd[,6:21] <- scale(sd[,6:21])
+```
+
 ```{r Simple Standard Model}
 lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 + treatment + ExchK_ppm + ExchK_ppm * treatment, data=imp24) %>%  summary()
 ```
 
 ```{r Standard Model}
+
 lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment, data=sd) %>%  summary()
 ```
 
@@ -90,10 +95,15 @@ lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_
 
 
 ```{r Imputed ALL Model}
-with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment)) %>% pool() %>% summary() 
+with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment)) 
 ```
 
 
+```{r}
+x <- with(sd_imp, lm(ExchNa_ppm ~Date_Sampled +  Year + Irr_season + Depth_1 +  Soil_pH  + NO3_D1_ppm + Bicarb_P_ppm + SO4_ppm + ExchK_ppm + ExchCa_ppm + ExchMg_ppm + Zn_ppm + Mn_ppm + Cu_ppm + Boron_ppm + CEC_me_100g + treatment + ExchK_ppm * treatment)) %>% pool() %>% summary()
+
+pool.r.squared(x, adjusted=TRUE)
+```
 
 
 ```{r }
@@ -153,20 +163,23 @@ mi.ll   <- mi.mean - 1.96*mi.estimates[,3]
 cc.ul   <- ci[,2]
 mi.ul   <- mi.mean + 1.96*mi.estimates[,3]
 # create names vector to use in forestplot. 
+
 names   <- as.character(mi.estimates[,1])
+
+names2 <- cbind(c("Date Sampled", "Year","Irr Season: Before","Irr Season: During","Irr Season: Winter","Depth 12-24 inches","Depth 25-36 inches","Depth 37-48 inches","Soil pH","Nitrate","Phosphorus", "Sulfur", "Potassium", "Calcium", "Magnesium", "Zinc","Manganese", "Copper","Boron", "CEC", "Sodium Treatment", "Potassium : Treatment"))
 
 
 #create forest plot to visualize variance between complete model and mice model
-forestplot(names, 
-           legend = c("True Model", "MICE"),
+forestplot(names2, 
+           legend = c("Complete Model", "MICE"),
            fn.ci_norm = c(fpDrawNormalCI, fpDrawCircleCI), 
            mean = cbind(cc.mean, mi.mean), 
            lower = cbind(cc.ll, mi.ll),
            upper = cbind(cc.ul, mi.ul), 
-           col=fpColors(box=c("blue", "darkred")), 
+           col=fpColors(box=c("#8C510A", "#BF812D"), lines="#8C510A"), 
            xlab="Regression coefficients",
-           boxsize = .2,
-           clip = c(-150,150)
+           boxsize = .4,
+           clip = c(-50,50),
            )
 ```
 
@@ -256,42 +269,75 @@ ggplot(sd, aes(x=sd$Year, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 ```
 
 ```{r}
+sd %>% ggplot(aes(Year, ExchNa_ppm, col=treatment)) +
+  geom_bar(stat="identity")
+  
+sd %>%
+  ggplot(aes(Year, ExchNa_ppm, col=treatment)) +
+    geom_point(alpha=.5) +
+  geom_smooth(col='purple',se=FALSE, method="lm", size=.5) +
+    geom_smooth(col="#DFC27D",se=FALSE) +
+  theme_bw() +
+  ggtitle('Sodium levels over time by treatment') +
+  ylab('Sodium - Na (ppm)') +
+  theme(legend.position="top",
+        legend.title = element_blank()) +
+    scale_color_manual(values=browns[c(4,2)])
 
 sd %>%
-  ggplot(aes(Year, ExchNa_ppm)) +
+  ggplot(aes(Year, ExchNa_ppm, col=Depth_1)) +
     geom_point(alpha=.5) +
-    geom_smooth(col="brown",se=FALSE) +
-  theme_bw() +
-  theme(legend.position="top") +
-    scale_color_manual(values=browns)
-
-sd %>%
-  ggplot(aes(Year, ExchNa_ppm)) +
-    geom_point(alpha=.5) +
-    geom_smooth(col="brown",se=FALSE) +
-  theme_bw() +
-  theme(legend.position="top") +
-    scale_color_manual(values=browns)
-
-imp24 %>%
-  ggplot(aes(Year, ExchNa_ppm, col=as.factor(Depth_1))) +
-    geom_point(alpha=.5) +
-    geom_smooth(se=FALSE) +
+  geom_smooth(col='purple',se=FALSE, method="lm", size=.5) +
+    geom_smooth(se=FALSE, aes(fill=Depth_1)) +
+  ylim(0,2000)+
   facet_grid(Depth_1~.) +
   theme_bw() +
+  ggtitle('Sodium levels over time by depth') +
+  ylab('Sodium - Na (ppm)') +
+  theme(legend.position="top",
+        legend.title = element_blank()) +
+    scale_color_manual(values=browns) +
+  scale_fill_manual(values=browns)
+
+
+sd %>%
+  ggplot(aes(Year, ExchNa_ppm, col=Depth_1)) +
+    geom_point(alpha=.5) +
+    geom_smooth(col='purple',se=FALSE, method="lm", size=.5) +
+    geom_smooth(se=FALSE) +
+  facet_grid(Irr_season~.) +
+  theme_bw() +
+  ggtitle('Sodium levels over time by irrigation season') +
   ylab('Sodium - Na (ppm)') +
   theme(legend.position="top",
         legend.title = element_blank()) +
     scale_color_manual(values=browns)
 
 sd %>%
-  ggplot(aes(Year, ExchNa_ppm, col=as.factor(Depth_1))) +
+  ggplot(aes(Year, ExchNa_ppm, col=Depth_1)) +
     geom_point(alpha=.5) +
-    geom_smooth(se=FALSE) +
+   geom_smooth(col='purple',se=FALSE, method="lm", size=.5) +
+    geom_smooth(se=FALSE, alpha=.5) +
   facet_grid(Depth_1~Irr_season) +
   theme_bw() +
-  theme(legend.position="top") +
+  ggtitle('Sodium levels over time by irrigation season and depth') +
+  ylab('Sodium - Na (ppm)') +
+  theme(legend.position="top",
+        legend.title = element_blank()) +
     scale_color_manual(values=browns)
+```
+
+```{r BOXPLOTS}
+sd %>% ggplot(aes(x=Depth_1, y=ExchNa_ppm, fill=Depth_1)) + 
+    geom_boxplot() + 
+  scale_fill_manual(values=browns)
+
+sd %>% ggplot(aes(x=Depth_1, y=ExchNa_ppm, fill=Depth_1)) + 
+    geom_boxplot() + 
+  scale_fill_manual(values=browns) + 
+  facet_wrap(~treatment)
+
+
 ```
 
 
@@ -309,9 +355,24 @@ ggplot(sd, aes(x=sd$Date_Sampled, y=sd$ExchNa_ppm, col=as.factor(sd$Depth_1))) +
 
 ```{r Sodium Tables}
 sd %>%  summarise("mean sodium"=mean(ExchNa_ppm))
-sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm))
 
-sd %>% group_by(Depth_1) %>% summarise(Sodium=mean(ExchNa_ppm)) %>% ggplot(aes(x=Depth_1, y=Sodium)) + geom_bar(stat="identity") + geom_label(aes(label=Sodium)) + theme_bw()
+sd %>% group_by(Depth_1) %>% 
+  summarise(mean=mean(ExchNa_ppm),
+            std = sd(ExchNa_ppm),
+            n = n())
+
+sd %>% group_by(treatment) %>% 
+  summarise(mean=mean(ExchNa_ppm),
+            std = sd(ExchNa_ppm),
+            n = n())
+
+
+sd %>% group_by(Field_ID) %>% 
+  summarise(mean=mean(ExchNa_ppm)) %>% 
+    ggplot(aes(x=Field_ID, y=mean)) + 
+    geom_bar(stat="identity") + 
+    geom_label(aes(label=round(mean, digits=0))) + 
+    theme_bw()
 ```
 
 ```{r Sodium  PPM over time w/ irr facet}
